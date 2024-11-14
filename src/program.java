@@ -27,7 +27,7 @@ public class program {
              Scanner scanner = new Scanner(System.in)) {
 
             int option = 0;
-            while (option != 16) {
+            while (option != 18) {
                 System.out.println("Select an option:");
                 System.out.println("1. Enter a new team");
                 System.out.println("2. Enter a new client and associate with teams");
@@ -372,6 +372,18 @@ public class program {
         System.out.println("Enter volunteer SSN:");
         int ssn = scanner.nextInt();
         scanner.nextLine();
+        
+     // Check if the SSN is already in the volunteer table
+        String checkVolunteerQuery = "SELECT 1 FROM volunteer WHERE ssn = ?";
+        try (PreparedStatement checkVolunteerStmt = connection.prepareStatement(checkVolunteerQuery)) {
+            checkVolunteerStmt.setInt(1, ssn);
+            ResultSet rs = checkVolunteerStmt.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("Error: This SSN is already registered as a volunteer.");
+                return; // Exit the method to prevent duplicate insertion
+            }
+        }
 
         // Check if the person already exists, insert if not
         insertPersonWithEmergencyContact(connection, scanner, ssn);
@@ -445,17 +457,26 @@ public class program {
 
 
 
- // Function to insert a new employee and associate with teams
+    // Function to insert a new employee and associate with teams
     private static void insertNewEmployee(Connection connection, Scanner scanner) throws SQLException {
         System.out.println("Enter employee SSN:");
         int ssn = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine(); 
+        
+        String checkEmployeeQuery = "SELECT 1 FROM employee WHERE ssn = ?";
+        try (PreparedStatement checkEmployeeStmt = connection.prepareStatement(checkEmployeeQuery)) {
+            checkEmployeeStmt.setInt(1, ssn);
+            ResultSet rs = checkEmployeeStmt.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("Error: This SSN is already registered as an employee.");
+                return; // Exit the method to prevent duplicate insertion
+            }
+        }
 
         // Call helper method to ensure person and emergency contact are inserted
         insertPersonWithEmergencyContact(connection, scanner, ssn);
 
-        // Check if the employee already exists in the employee table
-        String checkEmployeeQuery = "SELECT 1 FROM employee WHERE ssn = ?";
         boolean employeeExists;
         try (PreparedStatement checkStmt = connection.prepareStatement(checkEmployeeQuery)) {
             checkStmt.setInt(1, ssn);
