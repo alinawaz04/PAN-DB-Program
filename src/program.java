@@ -251,6 +251,31 @@ public class program {
         System.out.println("Is this team currently serving the client? (true/false):");
         boolean isActive = scanner.nextBoolean();
         scanner.nextLine(); // Consume newline
+        
+        // Check if the team exists
+        String checkTeamQuery = "SELECT 1 FROM team WHERE name = ?";
+        try (PreparedStatement checkTeamStmt = connection.prepareStatement(checkTeamQuery)) {
+            checkTeamStmt.setString(1, teamName);
+            ResultSet teamResult = checkTeamStmt.executeQuery();
+
+            if (!teamResult.next()) {
+                // If team does not exist, prompt the user to enter details to create a new team
+                System.out.println("Team not found. Enter details to add a new team.");
+                System.out.println("Enter team type:");
+                String teamType = scanner.nextLine();
+                System.out.println("Enter date formed (yyyy-mm-dd):");
+                String dateFormed = scanner.nextLine();
+
+                String insertTeamQuery = "INSERT INTO team (name, type, date_formed) VALUES (?, ?, ?)";
+                try (PreparedStatement insertTeamStmt = connection.prepareStatement(insertTeamQuery)) {
+                    insertTeamStmt.setString(1, teamName);
+                    insertTeamStmt.setString(2, teamType);
+                    insertTeamStmt.setDate(3, Date.valueOf(dateFormed));
+                    insertTeamStmt.executeUpdate();
+                    System.out.println("Team record added successfully.");
+                }
+            }
+        }
 
         String teamServesQuery = "INSERT INTO team_serves (client_ssn, team_name, is_active) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(teamServesQuery)) {
