@@ -1,0 +1,5 @@
+TeamA,Volleyball,2022-01-10
+TeamB,Basketball,2021-06-15
+TeamC,Soccer,2023-03-20
+TeamD,Hockey,2020-09-05
+TeamE,Football,2019-12-25
